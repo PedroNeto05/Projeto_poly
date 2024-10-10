@@ -10,9 +10,14 @@ private:
 public:
   Poly();
   explicit Poly(int N);
-  Poly(const Poly &N);
+  Poly(const Poly &P);
   Poly(Poly &&N);
   Poly &operator=(const Poly &P);
+  Poly &operator=(Poly &&P) noexcept;
+
+  int getGrau() const;
+  double getCoef(int N) const;
+  void setCoef(int i,double value);
   ~Poly();
 };
 
