@@ -1,12 +1,18 @@
 #include "Poly.h"
+#include <algorithm>
+#include <cmath>
+#include <fstream>
 #include <iostream>
+#include <string>
 #include <utility>
 
+using namespace std;
+
 Poly::Poly() : grau(-1), a(nullptr) {
-  std::cout << "Def" << std::endl;
+  cout << "Def" << endl;
 } // Construtor Default
 Poly::Poly(int N) { // Construtor expecifico
-  std::cout << "Exp" << std::endl;
+  cout << "Exp" << endl;
   if (N < 0) {
     grau = -1;
     a = nullptr;
@@ -27,16 +33,16 @@ Poly::Poly(int N) { // Construtor expecifico
   a[grau] = 1.0;
 }
 Poly::Poly(const Poly &P) : grau(P.grau) {
-  std::cout << "Copia" << std::endl;
+  cout << "Copia" << endl;
   a = new double[grau + 1];
   for (int i = 0; i <= grau; i++) {
     a[i] = P.a[i];
   }
 } // Construtor por copia
 Poly::Poly(Poly &&P) noexcept : grau(-1), a(nullptr) {
-  std::cout << "Movimento" << std::endl;
-  std::swap(grau, P.grau);
-  std::swap(a, P.a);
+  cout << "Movimento" << endl;
+  swap(grau, P.grau);
+  swap(a, P.a);
 } // Construtor por movimento
 
 Poly &Poly::operator=(const Poly &P) {
@@ -60,10 +66,98 @@ Poly &Poly::operator=(Poly &&P) noexcept {
   grau = -1;
   a = nullptr;
 
-  std::swap(grau, P.grau);
-  std::swap(a, P.a);
+  swap(grau, P.grau);
+  swap(a, P.a);
 
   return *this;
+}
+
+double Poly::operator[](int N) const { return getCoef(N); }
+
+bool Poly::operator==(const Poly &P) const {
+
+  if (grau != P.grau)
+    return false;
+
+  for (int i = 0; i <= grau; i++) {
+    if (a[i] != P.a[i])
+      return false;
+  }
+
+  return true;
+}
+
+bool Poly::operator!=(const Poly &P) const { return !(*this == P); }
+
+double Poly::operator()(double N) const { return getValor(N); };
+
+ostream &operator<<(ostream &O, const Poly &P) {
+  for (int i = P.grau; i >= 0; i--) {
+    double ai = P.a[i];
+
+    if (ai == 0.0) {
+      if (i == 0 && P.grau == 0) {
+        O << ai;
+      }
+      continue;
+    }
+
+    if (ai < 0.0) {
+      O << '-';
+    } else if (i != P.grau) {
+      O << '+';
+    }
+
+    if (abs(ai) != 1.0 || i == 0) {
+      O << abs(ai);
+    }
+
+    if (i != 0) {
+      if (abs(ai) != 1.0) {
+        O << '*';
+      }
+      O << 'x';
+      if (i > 1) {
+        O << '^' << i;
+      }
+    }
+  }
+
+  return O;
+}
+
+istream &operator>>(istream &O, Poly &P) {
+  if (P.empty()) {
+    return O;
+  }
+
+  for (int i = P.grau; i >= 0; i--) {
+    if (i == P.grau) {
+      do {
+        cout << "Digite o coeficiente de x^" << i << ": ";
+        O >> P.a[i];
+      } while (P.a[i] == 0 && P.grau != 0);
+      continue;
+    }
+    cout << "Digite o coeficiente de x^" << i << ": ";
+    O >> P.a[i];
+  }
+
+  return O;
+}
+
+Poly Poly::operator-() const {
+
+  if (empty())
+    return *this;
+
+  Poly prov(*this);
+
+  for (int i = 0; i <= grau; i++) {
+    prov.a[i] = -prov.a[i];
+  }
+
+  return prov;
 }
 
 int Poly::getGrau() const { return grau; }
@@ -76,21 +170,78 @@ double Poly::getCoef(int N) const {
   return a[N];
 }
 
-void Poly::setCoef(int i, double value) {
+void Poly::setCoef(int N, double value) {
 
-  if (i < 0 || i > grau) {
-    std::cerr << "[ERRO] O Indice não pode ser maior que o grau ou menor que 0"
-              << std::endl;
+  if (N < 0 || N > grau) {
+    cerr << "[ERRO] O Indice não pode ser maior que o grau ou menor que 0"
+         << endl;
     return;
   }
-  if (value == 0 && i == grau && grau > 0) {
-    std::cerr << "[ERRO] valor nulo para o coeficiente de maior grau em um "
-                 "polinômio não nulo"
-              << std::endl;
+  if (value == 0 && N == grau && grau > 0) {
+    cerr << "[ERRO] valor nulo para o coeficiente de maior grau em um "
+            "polinômio não nulo"
+         << endl;
     return;
   }
 
-  a[i] = value;
+  a[N] = value;
+}
+
+void Poly::recriar(int N) {
+  Poly prov(N);
+  *this = std::move(prov);
+}
+
+bool Poly::empty() const { return grau < 0; }
+
+bool Poly::isZero() const {
+  if (grau > 0 || grau < 0)
+    return false;
+  return a[0] == 0;
+}
+
+double Poly::getValor(double N) const {
+  double res(0.0);
+
+  if (empty()) {
+    return res;
+  }
+
+  for (int i = 0.0; i <= grau; i++) {
+    res += a[i] * pow(N, i);
+  }
+
+  return res;
+}
+
+bool Poly::salvar(string file) {
+  ofstream stream_out(file);
+
+  if (!stream_out.is_open())
+    return false;
+
+  stream_out << "POLY" << " " << grau << endl;
+
+  if (empty())
+    return true;
+
+  for (int i = 0; i <= grau; i++) {
+    stream_out << a[i] << " ";
+  }
+
+  stream_out << endl;
+  return true;
+}
+
+bool Poly::ler(string file) {
+  ifstream stream_out(file);
+
+  if (!stream_out.is_open())
+    return false;
+
+  // Fazer o codigo aqui
+
+  return true;
 }
 
 void Poly::clear() {
