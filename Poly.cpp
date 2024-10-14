@@ -11,7 +11,8 @@ using namespace std;
 Poly::Poly() : grau(-1), a(nullptr) {
   cout << "Def" << endl;
 } // Construtor Default
-Poly::Poly(int N) { // Construtor expecifico
+
+Poly::Poly(int N) {
   cout << "Exp" << endl;
   if (N < 0) {
     grau = -1;
@@ -31,7 +32,8 @@ Poly::Poly(int N) { // Construtor expecifico
     a[i] = 0.0;
   }
   a[grau] = 1.0;
-}
+} // Construtor expecifico
+
 Poly::Poly(const Poly &P) : grau(P.grau) {
   cout << "Copia" << endl;
   a = new double[grau + 1];
@@ -39,6 +41,7 @@ Poly::Poly(const Poly &P) : grau(P.grau) {
     a[i] = P.a[i];
   }
 } // Construtor por copia
+
 Poly::Poly(Poly &&P) noexcept : grau(-1), a(nullptr) {
   cout << "Movimento" << endl;
   swap(grau, P.grau);
