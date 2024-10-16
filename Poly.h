@@ -25,6 +25,7 @@ public:
   Poly operator-() const;
   Poly operator+(const Poly &P) const;
   Poly operator-(const Poly &P) const;
+  Poly operator*(const Poly &P) const;
 
   int getGrau() const;
   double getCoef(int N) const;

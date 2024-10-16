@@ -8,12 +8,9 @@
 
 using namespace std;
 
-Poly::Poly() : grau(-1), a(nullptr) {
-  cout << "Def" << endl;
-} // Construtor Default
+Poly::Poly() : grau(-1), a(nullptr) {}
 
 Poly::Poly(int N) {
-  cout << "Exp" << endl;
   if (N < 0) {
     grau = -1;
     a = nullptr;
@@ -32,21 +29,19 @@ Poly::Poly(int N) {
     a[i] = 0.0;
   }
   a[grau] = 1.0;
-} // Construtor expecifico
+}
 
 Poly::Poly(const Poly &P) : grau(P.grau) {
-  cout << "Copia" << endl;
   a = new double[grau + 1];
   for (int i = 0; i <= grau; i++) {
     a[i] = P.a[i];
   }
-} // Construtor por copia
+}
 
 Poly::Poly(Poly &&P) noexcept : grau(-1), a(nullptr) {
-  cout << "Movimento" << endl;
   swap(grau, P.grau);
   swap(a, P.a);
-} // Construtor por movimento
+}
 
 Poly &Poly::operator=(const Poly &P) {
   if (this == &P)
@@ -158,6 +153,54 @@ Poly Poly::operator-() const {
 
   for (int i = 0; i <= grau; i++) {
     prov.a[i] = -prov.a[i];
+  }
+
+  return prov;
+}
+
+Poly Poly::operator+(const Poly &P) const {
+  Poly prov(max(grau, P.grau));
+
+  for (int i = 0; i <= prov.grau; i++)
+    prov.a[i] = getCoef(i) + P[i];
+
+  while (prov.grau > 0 && prov.a[prov.grau] == 0.0) {
+    prov.grau--;
+  }
+  return prov;
+}
+
+Poly Poly::operator-(const Poly &P) const {
+  Poly prov(max(grau, P.grau));
+
+  for (int i = 0; i <= prov.grau; i++)
+    prov.a[i] = getCoef(i) - P[i];
+
+  while (prov.grau > 0 && prov.a[prov.grau] == 0.0) {
+    prov.grau--;
+  }
+
+  return prov;
+}
+
+Poly Poly::operator*(const Poly &P) const {
+
+  if (empty() || P.empty())
+    return Poly(-1);
+
+  if (isZero() || P.isZero())
+    return Poly(0);
+
+  Poly prov(grau + P.grau);
+
+  for (int i = 0; i <= prov.grau; i++) {
+    prov.a[i] = 0.0;
+  }
+
+  for (int i = 0; i <= grau; i++) {
+    for (int j = 0; j <= P.grau; j++) {
+      prov.a[i + j] += a[i] * P.a[j];
+    }
   }
 
   return prov;
