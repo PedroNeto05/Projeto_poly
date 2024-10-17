@@ -1,7 +1,7 @@
 #ifndef _POLY_H_
 #define _POLY_H_
 
-#include <ostream>
+#include <iostream>
 #include <string>
 class Poly {
 private:

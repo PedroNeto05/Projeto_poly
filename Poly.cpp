@@ -10,15 +10,14 @@ using namespace std;
 
 Poly::Poly() : grau(-1), a(nullptr) {}
 
-Poly::Poly(int N) {
+Poly::Poly(int N) : grau(-1), a(nullptr) {
   if (N < 0) {
-    grau = -1;
-    a = nullptr;
     return;
   }
+
   if (N == 0) {
     grau = N;
-    a = new double[grau + 1];
+    a = new double[1];
     a[0] = 0.0;
     return;
   }
@@ -31,7 +30,7 @@ Poly::Poly(int N) {
   a[grau] = 1.0;
 }
 
-Poly::Poly(const Poly &P) : grau(P.grau) {
+Poly::Poly(const Poly &P) : grau(P.grau), a(nullptr) {
   a = new double[grau + 1];
   for (int i = 0; i <= grau; i++) {
     a[i] = P.a[i];
@@ -186,7 +185,7 @@ Poly Poly::operator-(const Poly &P) const {
 Poly Poly::operator*(const Poly &P) const {
 
   if (empty() || P.empty())
-    return Poly(-1);
+    return Poly();
 
   if (isZero() || P.isZero())
     return Poly(0);
@@ -284,8 +283,6 @@ bool Poly::ler(string file) {
 
   if (!stream_out.is_open())
     return false;
-
-  // Fazer o codigo aqui
 
   return true;
 }
