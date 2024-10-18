@@ -281,9 +281,54 @@ bool Poly::salvar(string file) {
 bool Poly::ler(string file) {
   ifstream stream_out(file);
 
-  if (!stream_out.is_open())
+  if (!stream_out.is_open()) {
+    cout << "aqui 1" << endl;
     return false;
+  }
 
+  string header;
+  stream_out >> header;
+
+  if (stream_out.fail() || header != "POLY") {
+    cout << header << endl;
+    cout << "aqui 2" << endl;
+    return false;
+  }
+
+  int prov_grau;
+  stream_out >> prov_grau;
+
+  if (stream_out.fail()) {
+    cout << "aqui 3" << endl;
+    return false;
+  }
+
+  if (prov_grau < 0) {
+    *this = std::move(Poly(-1));
+    return true;
+  }
+
+  Poly prov(prov_grau);
+
+  double prov_idx;
+
+  for (int i = 0; i <= prov.grau; i++) {
+    stream_out >> prov_idx;
+
+    if (stream_out.fail()) {
+      cout << "aqui 4" << endl;
+      return false;
+    }
+
+    if (prov.grau > 0 && i == grau && prov_idx == 0) {
+      cout << "aqui 5" << endl;
+      return false;
+    }
+
+    prov.a[i] = prov_idx;
+  }
+
+  *this = std::move(prov);
   return true;
 }
 
